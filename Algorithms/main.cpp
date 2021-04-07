@@ -1,10 +1,10 @@
 #include "Program.h"
 
 using namespace std;
+using Collection::List;
 
 
 int main()
 {
-	cout << "Hello" << endl;
 	return EXIT_SUCCESS;
 }
