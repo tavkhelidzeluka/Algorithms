@@ -16,7 +16,7 @@ namespace graph_homework_1 {
 	class Graph
 	{
 	public:
-		unsigned vertex_count = NULL;
+		unsigned vertex_count = 0;
 		std::map<char, std::vector<char>> adjacency_list;
 
 		Graph(unsigned vertex_count)

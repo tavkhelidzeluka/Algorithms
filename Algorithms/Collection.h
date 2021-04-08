@@ -3,65 +3,69 @@
 
 namespace Collection
 {
-
-	class AbstractList
+	namespace Abstract 
 	{
-	protected:
-		int actual_size = NULL;
-		int capacity = NULL;
-	public:
-		bool is_empty() { return this->actual_size == 0; }
-		int size() { return this->actual_size; }
-
-		struct IndexOutOfRange : public std::exception
+		class List
 		{
-			const char* what() const throw ()
+		protected:
+			int actual_size = 0;
+			int capacity = 0;
+		public:
+			bool is_empty() { return this->actual_size == 0; }
+			int size() { return this->actual_size; }
+
+			struct IndexOutOfRange : public std::exception
 			{
-				return "index out of range";
+				const char* what() const throw ()
+				{
+					return "index out of range";
+				}
+			};
+			struct ListEmpty : public std::exception
+			{
+				const char* what() const throw()
+				{
+					return "List is empty";
+				}
+			};
+		};
+
+		template <typename T>
+		class DynamicList : public Abstract::List
+		{
+		protected:
+			T* data = nullptr;
+		public:
+			~DynamicList()
+			{
+				delete[] data;
+			}
+
+			virtual void push() = 0;
+			virtual void pop() = 0;
+
+			T& operator[](int index)
+			{
+				if (index == this->capacity)
+					throw DynamicList::IndexOutOfRange();
+				return this->data[index];
+			}
+
+			std::ostream& __repr__(std::ostream& output)
+			{
+				if (this->is_empty())
+					return output << "[]";
+				output << "[ ";
+				for (int i = 0; i < this->actual_size - 1; i++)
+					output << this->data[i] << ", ";
+				output << this->data[this->actual_size - 1];
+				output << " ]";
+				return output;
 			}
 		};
-		struct ListEmpty : public std::exception
-		{
-			const char* what() const throw()
-			{
-				return "List is empty";
-			}
-		};
-	};
+	}
 
-	template <typename T>
-	class AbstractDynamicList : public AbstractList
-	{
-	protected:
-		T* data = nullptr;
-	public:
-		~AbstractDynamicList()
-		{
-			delete[] data;
-		}
-
-		virtual void push() = 0;
-		virtual void pop() = 0;
-
-		T& operator[](int index)
-		{
-			if (index == this->capacity)
-				throw AbstractList::IndexOutOfRange();
-			return this->data[index];
-		}
-
-		std::ostream& __repr__(std::ostream& output)
-		{
-			if (this->is_empty())
-				return output << "[]";
-			output << "[ ";
-			for (int i = 0; i < this->actual_size - 1; i++)
-				output << this->data[i] << ", ";
-			output << this->data[this->actual_size - 1];
-			output << " ]";
-			return output;
-		}
-	};
+	
 
 	/*template <typename T>
 	class AbstractLinkedList : public AbstractList
@@ -112,7 +116,7 @@ namespace Collection
 	
 
 	template <typename T = int>
-	class List : public AbstractDynamicList<T>
+	class List : public Abstract::DynamicList<T>
 	{
 	private:
 		void push() {}
@@ -143,10 +147,10 @@ namespace Collection
 		void erase(int index)
 		{
 			if (this->is_empty())
-				throw List::ListEmpty();
+				throw Abstract::List::ListEmpty();
 
-			if (index < 0 or index > this->actual_size)
-				throw List::IndexOutOfRange();
+			if (index < 0 or index >= this->actual_size)
+				throw Abstract::List::IndexOutOfRange();
 
 			for (int i = index; i < this->actual_size; i++)
 			{
@@ -160,7 +164,7 @@ namespace Collection
 			if (this->actual_size == this->capacity)
 				this->increase_capacity();
 			if (index < 0 or index > this->actual_size)
-				throw List::IndexOutOfRange();
+				throw Abstract::List::IndexOutOfRange();
 
 			for (int i = this->actual_size; i > index; i--)
 			{
