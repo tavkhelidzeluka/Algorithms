@@ -36,7 +36,9 @@ int main()
 		cout << a[i] << endl;
 	}*/
 		
-	LinkedList<int> lst;
+	cout << "Linked List" << endl;
+
+	LinkedList<int> lst(false);
 
 	
 	for (int i = -5; i < 15; i++) 
@@ -67,17 +69,19 @@ int main()
 	lst.push_back(137);
 
 	cout << lst << endl;
-	cout << lst[-16] << ' ';
-	cout << lst[-256] << endl;
 
+	lst.pop();
+	lst.pop();
+	lst.pop();
+	lst.pop_back();
 
-	List<int> a;
+	lst.push_back(52);
+	lst.push(15);
+	cout << lst << endl;
 
-	a.push_back(25);
+	lst.pop_back();
 
-	cout << a << endl;
-
-	cout << a.pop_back() << endl;
+	cout << lst << endl;
 
 	return EXIT_SUCCESS;
 }

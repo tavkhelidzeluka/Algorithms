@@ -353,9 +353,24 @@ namespace Collection
 			if (this->is_empty())
 				throw ListEmpty();
 
-			NodePointer deleted_node = this->last_node;
+			if (this->actual_size == 1) {
+				this->actual_size = 0;
+				delete this->first_node, this->last_node;
+				this->first_node = this->last_node = nullptr;
+				return;
+			}
 
-			//this->last_node = this[-1];
+			NodePointer deleted_node = this->last_node;
+			NodePointer current_node = this->first_node;
+			
+			this->actual_size--;
+
+			while (current_node->next != this->last_node)
+				current_node = current_node->next;
+
+			current_node->next = nullptr;
+			this->last_node = current_node;
+			delete deleted_node;
 		}
 
 
@@ -365,10 +380,45 @@ namespace Collection
 	};
 
 	template <typename T = int>
-	class Stack : public LinkedList<T>
+	class Stack : private LinkedList<T>
 	{
+		using LinkedList = LinkedList<T>;
 	private:
-		void push_back(T value) {};
+		bool add_from_back = true;
 	public:
+
+		Stack() = default;
+		Stack(bool add_from_back)
+			: add_from_back(add_from_back)
+		{}
+
+		~Stack()
+		{
+
+		}
+
+		void push(T value) 
+		{
+			this->add_from_back ? LinkedList::push_back(value) : LinkedList::push(value);
+		}
+
+		void pop()
+		{
+			this->add_from_back ? LinkedList::pop_back() : LinkedList::pop();
+		}
+
+		T top()
+		{
+			return LinkedList::first();
+		}
+
+		using LinkedList::clear;
+		using LinkedList::__repr__;
+		using LinkedList::is_empty;
+
+		friend std::ostream& operator << (std::ostream& output, Stack& object)
+		{
+			return object.__repr__(output);
+		}
 	};
 }
