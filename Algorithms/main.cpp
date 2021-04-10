@@ -3,6 +3,7 @@
 using namespace std;
 using Collection::List;
 using Collection::LinkedList;
+using Homework_2::Graph;
 
 
 int main()
@@ -35,7 +36,7 @@ int main()
 		cout << a[i] << endl;
 	}*/
 		
-	LinkedList<> lst;
+	/*LinkedList<> lst;
 
 
 	for (int i = -500; i < 500; i++)
@@ -47,6 +48,21 @@ int main()
 	for (int i = 0; i < 995; i++)
 		lst.pop();
 
-	cout << lst << endl;
+	cout << lst << endl;*/
+
+	Graph a(5, false);
+
+	a.add_edge('a', 'b');
+	a.add_edge('b', 'c');
+	a.add_edge('d', 'e');
+	a.add_edge('c', 'd');
+	a.add_edge('c', 'f');
+
+
+
+
+	cout << a << endl;
+
+	a.topological_sort();
 	return EXIT_SUCCESS;
 }
