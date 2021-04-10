@@ -392,11 +392,6 @@ namespace Collection
 			: add_from_back(add_from_back)
 		{}
 
-		~Stack()
-		{
-
-		}
-
 		void push(T value) 
 		{
 			this->add_from_back ? LinkedList::push_back(value) : LinkedList::push(value);
@@ -409,7 +404,7 @@ namespace Collection
 
 		T top()
 		{
-			return LinkedList::first();
+			return this->add_from_back ? LinkedList::last() : LinkedList::first();
 		}
 
 		using LinkedList::clear;
