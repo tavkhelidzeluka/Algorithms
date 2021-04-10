@@ -79,6 +79,8 @@ namespace Collection
 			Node* next = nullptr;
 			Node* prev = nullptr;
 			Node(T value) : data(value) { }
+			Node(T value, Node<T>* next) : data(value), next(next) { }
+
 			friend std::ostream& operator <<(std::ostream& output, Node& object)
 			{
 				return output << object.data;
@@ -100,21 +102,21 @@ namespace Collection
 			virtual void push(T value) = 0;
 			virtual void pop() = 0;
 
+			bool is_empty() { return this->first_node == nullptr; }
+
 			void clear()
 			{
-				if (this->is_empty())
-					return;
-
 				this->actual_size = 0;
 
 				Node<T>* current_node = this->first_node;
 				Node<T>* next_node = nullptr;
 
-				while (current_node)
+				while (not this->is_empty())
 				{
 					next_node = current_node->next;
 					delete current_node;
 					current_node = next_node;
+					this->first_node = next_node;
 				}
 			}
 

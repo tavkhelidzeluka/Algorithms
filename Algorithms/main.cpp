@@ -39,16 +39,21 @@ int main()
 	LinkedList<> lst(false);
 
 	lst.push(1);
-	lst.push(2);
-	lst.push(3);
-	lst.push(4);
-	lst.push_back(5);
+	lst.push(25);
+	lst.push_back(25);
+	lst.push_back(9999);
+
 
 	cout << lst << endl;
+	
+	lst.clear();
+	lst.push(5);
+	lst.push_back(25);
+	lst.push_back(9999);
 
+	cout << lst << endl;
 	lst.clear();
 
-	lst.push(1);
 	cout << lst << endl;
 
 	return EXIT_SUCCESS;
