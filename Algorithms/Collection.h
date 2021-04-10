@@ -33,22 +33,35 @@ namespace Collection
 		template <typename T>
 		class DynamicList : public Abstract::List
 		{
+			using ListEmpty = Abstract::List::ListEmpty;
 		protected:
 			T* data = nullptr;
 			unsigned capacity = 0;
+
+			virtual void push(T value) = 0;
+			virtual void pop() = 0;
 		public:
 			~DynamicList()
 			{
 				delete[] data;
 			}
 
-			virtual void push(T value) = 0;
-			virtual void pop() = 0;
-
 			T& operator[](int index)
 			{
-				if (index == this->capacity)
-					throw DynamicList::IndexOutOfRange();
+				if (this->is_empty())
+					throw ListEmpty();
+
+				index = abs(index);
+				if (index < 0)
+					while (unsigned(index) >= this->actual_size)
+					{
+						index += this->actual_size;
+					}
+				else
+					while (unsigned(index) >= this->actual_size)
+					{
+						index -= this->actual_size;
+					}
 				return this->data[index];
 			}
 
@@ -57,7 +70,7 @@ namespace Collection
 				if (this->is_empty())
 					return output << "[]";
 				output << "[ ";
-				for (int i = 0; i < this->actual_size - 1; i++)
+				for (unsigned i = 0; i < this->actual_size - 1; i++)
 					output << this->data[i] << ", ";
 				output << this->data[this->actual_size - 1];
 				output << " ]";
@@ -90,17 +103,18 @@ namespace Collection
 		template <typename T>
 		class LinkedList : public Abstract::List
 		{
+			using NodePointer = Node<T>*;
+
 		protected:
-			Node<T>* first_node = nullptr;
-			Node<T>* last_node = nullptr;
+			NodePointer first_node = nullptr;
+			NodePointer last_node = nullptr;
+			virtual void push(T value) = 0;
+			virtual void pop() = 0;
 		public:
 			~LinkedList()
 			{
 				this->clear();
 			}
-
-			virtual void push(T value) = 0;
-			virtual void pop() = 0;
 
 			bool is_empty() { return this->first_node == nullptr; }
 
@@ -108,8 +122,8 @@ namespace Collection
 			{
 				this->actual_size = 0;
 
-				Node<T>* current_node = this->first_node;
-				Node<T>* next_node = nullptr;
+				NodePointer current_node = this->first_node;
+				NodePointer next_node = nullptr;
 
 				while (not this->is_empty())
 				{
@@ -120,14 +134,24 @@ namespace Collection
 				}
 			}
 
-			T operator [](unsigned index)
+			T operator [](int index)
 			{
-				if (index < 0 or index > this->actual_size)
-					throw LinkedList::IndexOutOfRange();
+				while (unsigned(abs(index)) >= this->actual_size)
+				{
+					if (index < 0)
+						index += this->actual_size;
+					else
+						index -= this->actual_size;
+				}
 
-				unsigned start_index = 0;
-				Node<T>* current_node = this->first_node;
-				while (start_index++ != index)
+				int start_index = 0;
+				int up_to = index;
+				NodePointer current_node = this->first_node;
+
+				if (index < 0)
+					up_to = this->actual_size + index;
+
+				while (start_index++ != up_to)
 				{
 					current_node = current_node->next;
 				}
@@ -139,7 +163,7 @@ namespace Collection
 				if (this->is_empty())
 					return output << "[]";
 				output << "[ ";
-				Node<T>* current_node = this->first_node;
+				NodePointer current_node = this->first_node;
 				for (unsigned i = 0; i < this->actual_size - 1; i++) 
 				{
 					output << *current_node << ", ";
@@ -162,6 +186,8 @@ namespace Collection
 	template <typename T = int>
 	class List : public Abstract::DynamicList<T>
 	{
+		using ListEmpty = Abstract::List::ListEmpty;
+		using IndexOutOfRange = Abstract::List::IndexOutOfRange;
 	private:
 		void push(T value) {}
 		void pop() {}
@@ -181,6 +207,13 @@ namespace Collection
 			delete[] temp;
 		}
 	public:
+		List()
+		{
+			this->capacity = 0;
+			this->actual_size = 0;
+			this->data = new T[0];
+		}
+
 		List(int size)
 		{
 			this->capacity = size;
@@ -191,10 +224,10 @@ namespace Collection
 		void erase(unsigned index)
 		{
 			if (this->is_empty())
-				throw Abstract::List::ListEmpty();
+				throw ListEmpty();
 
 			if (index < 0 or index >= this->actual_size)
-				throw Abstract::List::IndexOutOfRange();
+				throw IndexOutOfRange();
 
 			for (unsigned i = index; i < this->actual_size; i++)
 			{
@@ -227,6 +260,17 @@ namespace Collection
 			this->data[this->actual_size++] = value;
 		}
 
+		T pop_back()
+		{
+			if (this->is_empty())
+				throw ListEmpty();
+
+			T deleted_value = this->data[--this->actual_size];
+
+			this->increase_capacity(-1);
+			return deleted_value;
+		}
+
 		template <typename obj_tpye>
 		friend std::ostream& operator <<(std::ostream& output, List<obj_tpye>& object)
 		{
@@ -238,6 +282,10 @@ namespace Collection
 	template <typename T = int>
 	class LinkedList : public Abstract::LinkedList<T>
 	{
+		using ListEmpty = Abstract::List::ListEmpty;
+		using Node = Abstract::Node<T>;
+		using NodePointer = Node*;
+
 	private:
 		bool is_double_linked = false;
 	public:
@@ -253,12 +301,12 @@ namespace Collection
 		{
 			if (this->is_empty())
 			{
-				this->first_node = this->last_node = new Abstract::Node<T>(value);
+				this->first_node = this->last_node = new Node(value);
 				this->actual_size++;
 				return;
 			}
 
-			this->first_node = new Abstract::Node<T>(value, this->first_node);
+			this->first_node = new Node(value, this->first_node);
 
 			if (this->is_double_linked and this->first_node->next)
 				this->first_node->next->prev = this->first_node;
@@ -270,12 +318,12 @@ namespace Collection
 		{
 			if (this->is_empty())
 			{
-				this->first_node = this->last_node = new Abstract::Node<T>(value);
+				this->first_node = this->last_node = new Node(value);
 				this->actual_size++;
 				return;
 			}
 			
-			Abstract::Node<T>* new_node = new Abstract::Node<T>(value);
+			NodePointer new_node = new Node(value);
 			this->last_node->next = new_node;
 
 			if (this->is_double_linked)
@@ -289,9 +337,9 @@ namespace Collection
 		void pop() 
 		{
 			if (this->is_empty())
-				throw Abstract::List::ListEmpty();
+				throw ListEmpty();
 
-			Abstract::Node<T>* deleted_node = this->first_node;
+			NodePointer deleted_node = this->first_node;
 			this->first_node = this->first_node->next;
 			if (this->is_double_linked)
 				this->first_node->prev = nullptr;
@@ -302,7 +350,12 @@ namespace Collection
 
 		void pop_back()
 		{
+			if (this->is_empty())
+				throw ListEmpty();
 
+			NodePointer deleted_node = this->last_node;
+
+			//this->last_node = this[-1];
 		}
 
 

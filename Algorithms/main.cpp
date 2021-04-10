@@ -1,5 +1,5 @@
 #include "Program.h"
-
+#include <vector>
 using namespace std;
 using Collection::List;
 using Collection::LinkedList;
@@ -36,25 +36,48 @@ int main()
 		cout << a[i] << endl;
 	}*/
 		
-	LinkedList<> lst(false);
+	LinkedList<int> lst;
 
-	lst.push(1);
-	lst.push(25);
-	lst.push_back(25);
-	lst.push_back(9999);
-
-
-	cout << lst << endl;
 	
-	lst.clear();
-	lst.push(5);
-	lst.push_back(25);
-	lst.push_back(9999);
+	for (int i = -5; i < 15; i++) 
+	{
+		if (i % 2 == 0)
+			lst.push_back(i);
+		else
+			lst.push(i);
+	}
 
 	cout << lst << endl;
+
 	lst.clear();
 
 	cout << lst << endl;
+
+	try {
+		lst.pop_back();
+	}
+	catch (Collection::Abstract::List::ListEmpty& e)
+	{
+		cout << e.what() << endl;
+	}
+
+	lst.push_back(5);
+	lst.push(255);
+	lst.push_back(-42324);
+	lst.push_back(137);
+
+	cout << lst << endl;
+	cout << lst[-16] << ' ';
+	cout << lst[-256] << endl;
+
+
+	List<int> a;
+
+	a.push_back(25);
+
+	cout << a << endl;
+
+	cout << a.pop_back() << endl;
 
 	return EXIT_SUCCESS;
 }
