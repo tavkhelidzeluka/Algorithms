@@ -295,6 +295,37 @@ namespace Collection
 			this->actual_size = 0;
 		}
 
+		LinkedList(LinkedList& object)
+		{
+			this->operator=(object);
+		}
+
+		void operator =(LinkedList& object)
+		{
+			if (not object.is_empty())
+			{
+				this->~LinkedList();
+				this->first_node = new Node(object.first_node->data);
+
+				NodePointer current_node = this->first_node;
+				NodePointer other_node = object.first_node;
+				this->actual_size = object.actual_size;
+				this->is_double_linked = object.is_double_linked;
+
+				for (unsigned i = 0; i < object.actual_size - 1; i++)
+				{
+					current_node->next = new Node(other_node->next->data);
+					if (object.is_double_linked)
+						current_node->next->prev = current_node;
+					current_node = current_node->next;
+					other_node = other_node->next;
+				}
+				this->last_node = current_node;
+			}
+		}
+
+		~LinkedList() = default;
+
 		bool is_empty() { return this->first_node == nullptr; }
 
 		void push(T value)
@@ -410,6 +441,7 @@ namespace Collection
 		using LinkedList::clear;
 		using LinkedList::__repr__;
 		using LinkedList::is_empty;
+		using LinkedList::size;
 
 		friend std::ostream& operator << (std::ostream& output, Stack& object)
 		{

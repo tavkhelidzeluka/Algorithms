@@ -83,5 +83,38 @@ int main()
 
 	cout << lst << endl;
 
+
+	cout << "Stack test" << endl;
+
+	Stack<int> stk;
+	stk.push(9);
+
+
+	Stack<int> stk2 = stk;
+
+	stk.clear();
+	cout << stk << endl;
+
+	stk2.pop();
+	stk2.push(26);
+	cout << stk2 << endl;
+
+	stk = stk2;
+
+	stk2.clear();
+
+	cout << stk << endl;
+	cout << stk2 << endl;
+
+
+	stk2 = stk;
+
+	cout << stk << endl;
+	cout << stk2 << endl;
+
+	stk2.clear();
+
+	cout << stk2;
+
 	return EXIT_SUCCESS;
 }
