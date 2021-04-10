@@ -8,7 +8,6 @@ using Homework_2::Graph;
 
 int main()
 {
-	// graph_homework_1::test_homework_1();
 	/*List<> a(5);
 	a.push_back(25);
 	a.push_back(13);
@@ -49,20 +48,7 @@ int main()
 		lst.pop();
 
 	cout << lst << endl;*/
-
-	Graph a(5, false);
-
-	a.add_edge('a', 'b');
-	a.add_edge('b', 'c');
-	a.add_edge('d', 'e');
-	a.add_edge('c', 'd');
-	a.add_edge('c', 'f');
-
-
-
-
-	cout << a << endl;
-
-	a.topological_sort();
+	Homework_1::test();
+	Homework_2::test();
 	return EXIT_SUCCESS;
 }

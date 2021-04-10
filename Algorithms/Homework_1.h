@@ -67,6 +67,7 @@ namespace Homework_1 {
 			/*
 				representation of Graph
 			*/
+			output << std::endl;
 			output << this << " {\n";
 			for (const auto& [key, value] : this->adjacency_list)
 			{
@@ -78,6 +79,8 @@ namespace Homework_1 {
 				output << std::endl;
 			}
 			output << "}\n";
+			output << std::endl;
+
 			return output;
 		}
 
@@ -222,7 +225,7 @@ namespace Homework_1 {
 
 	};
 
-	void test_homework_1()
+	void test()
 	{
 		Graph b({ 'b', 'c', 'd', 'f' });
 

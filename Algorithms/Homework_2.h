@@ -87,12 +87,29 @@ namespace Homework_2
 				return;
 			}
 
-			for (unsigned i = 0; i < finished.size(); i++)
+			for (unsigned i = 0; i < finished.size() - 1; i++)
 			{
 				i--;
-				std::cout << finished.top() << ' ';
+				std::cout << finished.top() << " -> ";
 				finished.pop();
 			}
+			std::cout << finished.top() << std::endl;
 		}
 	};
+
+	void test()
+	{
+		Graph a(5, false);
+
+		a.add_edge('a', 'b');
+		a.add_edge('b', 'c');
+		a.add_edge('d', 'e');
+		a.add_edge('c', 'd');
+		a.add_edge('c', 'f');
+
+
+		std::cout << a << std::endl;
+
+		a.topological_sort();
+	}
 }
