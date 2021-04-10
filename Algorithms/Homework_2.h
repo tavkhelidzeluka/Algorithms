@@ -1,8 +1,10 @@
 #include <iostream>
 #include <map>
 #include <stack>
-#include "Homework_1.h"
 #include <functional>
+
+#include "Homework_1.h"
+
 
 namespace Homework_2
 {
