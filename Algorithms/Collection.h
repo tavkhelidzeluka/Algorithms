@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <exception>
 
 namespace Collection
@@ -62,6 +63,12 @@ namespace Collection
 				output << " ]";
 				return output;
 			}
+
+			friend std::ostream& operator <<(std::ostream& output, DynamicList<T> object)
+			{
+				object.__repr__(output);
+				return output;
+			}
 		};
 
 		template <typename T>
@@ -72,6 +79,10 @@ namespace Collection
 			Node* next = nullptr;
 			Node* prev = nullptr;
 			Node(T value) : data(value) { }
+			friend std::ostream& operator <<(std::ostream& output, Node& object)
+			{
+				return output << object.data;
+			}
 		};
 
 		template <typename T>
@@ -83,26 +94,29 @@ namespace Collection
 		public:
 			~LinkedList()
 			{
-				if (this->is_empty())
-					return;
-				if (not this->first_node->next) 
-				{
-					delete this->first_node, this->last_node;
-					return;
-				}
-
-				Node<T>* current_node = this->first_node->next;
-
-				while (current_node->next != nullptr)
-				{
-					delete this->first_node;
-					this->first_node = current_node;
-					current_node = current_node->next;
-				}
+				this->clear();
 			}
 
 			virtual void push(T value) = 0;
 			virtual void pop() = 0;
+
+			void clear()
+			{
+				if (this->is_empty())
+					return;
+
+				this->actual_size = 0;
+
+				Node<T>* current_node = this->first_node;
+				Node<T>* next_node = nullptr;
+
+				while (current_node)
+				{
+					next_node = current_node->next;
+					delete current_node;
+					current_node = next_node;
+				}
+			}
 
 			T operator [](unsigned index)
 			{
@@ -126,12 +140,18 @@ namespace Collection
 				Node<T>* current_node = this->first_node;
 				for (unsigned i = 0; i < this->actual_size - 1; i++) 
 				{
-					output << current_node->data << ", ";
+					output << *current_node << ", ";
 					current_node = current_node->next;
 				}
 
 				output << this->last_node->data;
 				output << " ]";
+				return output;
+			}
+
+			friend std::ostream& operator <<(std::ostream& output, LinkedList& object)
+			{
+				object.__repr__(output);
 				return output;
 			}
 		};
@@ -217,11 +237,12 @@ namespace Collection
 	class LinkedList : public Abstract::LinkedList<T>
 	{
 	private:
-
+		bool is_double_linked = false;
 	public:
-		LinkedList(int size = 0)
+		LinkedList(bool is_double_linked = false) 
+			: is_double_linked(is_double_linked)
 		{
-			this->actual_size = size;
+			this->actual_size = 0;
 		}
 
 		bool is_empty() { return this->first_node == nullptr; }
@@ -235,9 +256,31 @@ namespace Collection
 				return;
 			}
 
+			this->first_node = new Abstract::Node<T>(value, this->first_node);
+
+			if (this->is_double_linked and this->first_node->next)
+				this->first_node->next->prev = this->first_node;
+
+			this->actual_size++;
+		}
+
+		void push_back(T value)
+		{
+			if (this->is_empty())
+			{
+				this->first_node = this->last_node = new Abstract::Node<T>(value);
+				this->actual_size++;
+				return;
+			}
+			
 			Abstract::Node<T>* new_node = new Abstract::Node<T>(value);
-			new_node->next = this->first_node;
-			this->first_node = new_node;
+			this->last_node->next = new_node;
+
+			if (this->is_double_linked)
+				new_node->prev = this->last_node;
+
+			this->last_node = new_node;
+
 			this->actual_size++;
 		}
 
@@ -246,25 +289,31 @@ namespace Collection
 			if (this->is_empty())
 				throw Abstract::List::ListEmpty();
 
-			if (not this->first_node->next) 
-			{
-				delete this->first_node, this->last_node;
-				this->actual_size--;
-				return;
-			}
-
 			Abstract::Node<T>* deleted_node = this->first_node;
 			this->first_node = this->first_node->next;
+			if (this->is_double_linked)
+				this->first_node->prev = nullptr;
+
 			this->actual_size--;
 			delete deleted_node;
-			
 		}
 
-		template <typename obj_tpye>
-		friend std::ostream& operator <<(std::ostream& output, LinkedList<obj_tpye>& object)
+		void pop_back()
 		{
-			object.__repr__(output);
-			return output;
+
 		}
+
+
+		T first() { return this->first_node->data; }
+		T last() { return this->last_node->data; }
+
+	};
+
+	template <typename T = int>
+	class Stack : public LinkedList<T>
+	{
+	private:
+		void push_back(T value) {};
+	public:
 	};
 }

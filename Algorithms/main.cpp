@@ -3,6 +3,7 @@
 using namespace std;
 using Collection::List;
 using Collection::LinkedList;
+using Collection::Stack;
 
 
 int main()
@@ -35,18 +36,20 @@ int main()
 		cout << a[i] << endl;
 	}*/
 		
-	LinkedList<> lst;
+	LinkedList<> lst(false);
 
-
-	for (int i = -500; i < 500; i++)
-		lst.push(i);
-	
-
-	cout << lst << endl;
-
-	for (int i = 0; i < 995; i++)
-		lst.pop();
+	lst.push(1);
+	lst.push(2);
+	lst.push(3);
+	lst.push(4);
+	lst.push_back(5);
 
 	cout << lst << endl;
+
+	lst.clear();
+
+	lst.push(1);
+	cout << lst << endl;
+
 	return EXIT_SUCCESS;
 }
