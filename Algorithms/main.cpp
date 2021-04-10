@@ -48,7 +48,7 @@ int main()
 		lst.pop();
 
 	cout << lst << endl;*/
-	Homework_1::test();
+	//Homework_1::test();
 	Homework_2::test();
 	return EXIT_SUCCESS;
 }
