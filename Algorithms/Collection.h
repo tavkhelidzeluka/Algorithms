@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <exception>
 
 namespace Collection
@@ -32,22 +33,35 @@ namespace Collection
 		template <typename T>
 		class DynamicList : public Abstract::List
 		{
+			using ListEmpty = Abstract::List::ListEmpty;
 		protected:
 			T* data = nullptr;
 			unsigned capacity = 0;
+
+			virtual void push(T value) = 0;
+			virtual void pop() = 0;
 		public:
 			~DynamicList()
 			{
 				delete[] data;
 			}
 
-			virtual void push(T value) = 0;
-			virtual void pop() = 0;
-
 			T& operator[](int index)
 			{
-				if (index == this->capacity)
-					throw DynamicList::IndexOutOfRange();
+				if (this->is_empty())
+					throw ListEmpty();
+
+				index = abs(index);
+				if (index < 0)
+					while (unsigned(index) >= this->actual_size)
+					{
+						index += this->actual_size;
+					}
+				else
+					while (unsigned(index) >= this->actual_size)
+					{
+						index -= this->actual_size;
+					}
 				return this->data[index];
 			}
 
@@ -56,10 +70,16 @@ namespace Collection
 				if (this->is_empty())
 					return output << "[]";
 				output << "[ ";
-				for (int i = 0; i < this->actual_size - 1; i++)
+				for (unsigned i = 0; i < this->actual_size - 1; i++)
 					output << this->data[i] << ", ";
 				output << this->data[this->actual_size - 1];
 				output << " ]";
+				return output;
+			}
+
+			friend std::ostream& operator <<(std::ostream& output, DynamicList<T> object)
+			{
+				object.__repr__(output);
 				return output;
 			}
 		};
@@ -72,46 +92,66 @@ namespace Collection
 			Node* next = nullptr;
 			Node* prev = nullptr;
 			Node(T value) : data(value) { }
+			Node(T value, Node<T>* next) : data(value), next(next) { }
+
+			friend std::ostream& operator <<(std::ostream& output, Node& object)
+			{
+				return output << object.data;
+			}
 		};
 
 		template <typename T>
 		class LinkedList : public Abstract::List
 		{
+			using NodePointer = Node<T>*;
+
 		protected:
-			Node<T>* first_node = nullptr;
-			Node<T>* last_node = nullptr;
+			NodePointer first_node = nullptr;
+			NodePointer last_node = nullptr;
+			virtual void push(T value) = 0;
+			virtual void pop() = 0;
 		public:
 			~LinkedList()
 			{
-				if (this->is_empty())
-					return;
-				if (not this->first_node->next) 
-				{
-					delete this->first_node, this->last_node;
-					return;
-				}
+				this->clear();
+			}
 
-				Node<T>* current_node = this->first_node->next;
+			bool is_empty() { return this->first_node == nullptr; }
 
-				while (current_node->next != nullptr)
+			void clear()
+			{
+				this->actual_size = 0;
+
+				NodePointer current_node = this->first_node;
+				NodePointer next_node = nullptr;
+
+				while (not this->is_empty())
 				{
-					delete this->first_node;
-					this->first_node = current_node;
-					current_node = current_node->next;
+					next_node = current_node->next;
+					delete current_node;
+					current_node = next_node;
+					this->first_node = next_node;
 				}
 			}
 
-			virtual void push(T value) = 0;
-			virtual void pop() = 0;
-
-			T operator [](unsigned index)
+			T operator [](int index)
 			{
-				if (index < 0 or index > this->actual_size)
-					throw LinkedList::IndexOutOfRange();
+				while (unsigned(abs(index)) >= this->actual_size)
+				{
+					if (index < 0)
+						index += this->actual_size;
+					else
+						index -= this->actual_size;
+				}
 
-				unsigned start_index = 0;
-				Node<T>* current_node = this->first_node;
-				while (start_index++ != index)
+				int start_index = 0;
+				int up_to = index;
+				NodePointer current_node = this->first_node;
+
+				if (index < 0)
+					up_to = this->actual_size + index;
+
+				while (start_index++ != up_to)
 				{
 					current_node = current_node->next;
 				}
@@ -123,15 +163,21 @@ namespace Collection
 				if (this->is_empty())
 					return output << "[]";
 				output << "[ ";
-				Node<T>* current_node = this->first_node;
+				NodePointer current_node = this->first_node;
 				for (unsigned i = 0; i < this->actual_size - 1; i++) 
 				{
-					output << current_node->data << ", ";
+					output << *current_node << ", ";
 					current_node = current_node->next;
 				}
 
 				output << this->last_node->data;
 				output << " ]";
+				return output;
+			}
+
+			friend std::ostream& operator <<(std::ostream& output, LinkedList& object)
+			{
+				object.__repr__(output);
 				return output;
 			}
 		};
@@ -140,6 +186,8 @@ namespace Collection
 	template <typename T = int>
 	class List : public Abstract::DynamicList<T>
 	{
+		using ListEmpty = Abstract::List::ListEmpty;
+		using IndexOutOfRange = Abstract::List::IndexOutOfRange;
 	private:
 		void push(T value) {}
 		void pop() {}
@@ -159,6 +207,13 @@ namespace Collection
 			delete[] temp;
 		}
 	public:
+		List()
+		{
+			this->capacity = 0;
+			this->actual_size = 0;
+			this->data = new T[0];
+		}
+
 		List(int size)
 		{
 			this->capacity = size;
@@ -169,10 +224,10 @@ namespace Collection
 		void erase(unsigned index)
 		{
 			if (this->is_empty())
-				throw Abstract::List::ListEmpty();
+				throw ListEmpty();
 
 			if (index < 0 or index >= this->actual_size)
-				throw Abstract::List::IndexOutOfRange();
+				throw IndexOutOfRange();
 
 			for (unsigned i = index; i < this->actual_size; i++)
 			{
@@ -205,6 +260,17 @@ namespace Collection
 			this->data[this->actual_size++] = value;
 		}
 
+		T pop_back()
+		{
+			if (this->is_empty())
+				throw ListEmpty();
+
+			T deleted_value = this->data[--this->actual_size];
+
+			this->increase_capacity(-1);
+			return deleted_value;
+		}
+
 		template <typename obj_tpye>
 		friend std::ostream& operator <<(std::ostream& output, List<obj_tpye>& object)
 		{
@@ -216,13 +282,49 @@ namespace Collection
 	template <typename T = int>
 	class LinkedList : public Abstract::LinkedList<T>
 	{
-	private:
+		using ListEmpty = Abstract::List::ListEmpty;
+		using Node = Abstract::Node<T>;
+		using NodePointer = Node*;
 
+	private:
+		bool is_double_linked = false;
 	public:
-		LinkedList(int size = 0)
+		LinkedList(bool is_double_linked = false) 
+			: is_double_linked(is_double_linked)
 		{
-			this->actual_size = size;
+			this->actual_size = 0;
 		}
+
+		LinkedList(LinkedList& object)
+		{
+			this->operator=(object);
+		}
+
+		void operator =(LinkedList& object)
+		{
+			if (not object.is_empty())
+			{
+				this->~LinkedList();
+				this->first_node = new Node(object.first_node->data);
+
+				NodePointer current_node = this->first_node;
+				NodePointer other_node = object.first_node;
+				this->actual_size = object.actual_size;
+				this->is_double_linked = object.is_double_linked;
+
+				for (unsigned i = 0; i < object.actual_size - 1; i++)
+				{
+					current_node->next = new Node(other_node->next->data);
+					if (object.is_double_linked)
+						current_node->next->prev = current_node;
+					current_node = current_node->next;
+					other_node = other_node->next;
+				}
+				this->last_node = current_node;
+			}
+		}
+
+		~LinkedList() = default;
 
 		bool is_empty() { return this->first_node == nullptr; }
 
@@ -230,41 +332,120 @@ namespace Collection
 		{
 			if (this->is_empty())
 			{
-				this->first_node = this->last_node = new Abstract::Node<T>(value);
+				this->first_node = this->last_node = new Node(value);
 				this->actual_size++;
 				return;
 			}
 
-			Abstract::Node<T>* new_node = new Abstract::Node<T>(value);
-			new_node->next = this->first_node;
-			this->first_node = new_node;
+			this->first_node = new Node(value, this->first_node);
+
+			if (this->is_double_linked and this->first_node->next)
+				this->first_node->next->prev = this->first_node;
+
+			this->actual_size++;
+		}
+
+		void push_back(T value)
+		{
+			if (this->is_empty())
+			{
+				this->first_node = this->last_node = new Node(value);
+				this->actual_size++;
+				return;
+			}
+			
+			NodePointer new_node = new Node(value);
+			this->last_node->next = new_node;
+
+			if (this->is_double_linked)
+				new_node->prev = this->last_node;
+
+			this->last_node = new_node;
+
 			this->actual_size++;
 		}
 
 		void pop() 
 		{
 			if (this->is_empty())
-				throw Abstract::List::ListEmpty();
+				throw ListEmpty();
 
-			if (not this->first_node->next) 
-			{
+			NodePointer deleted_node = this->first_node;
+			this->first_node = this->first_node->next;
+			if (this->is_double_linked)
+				this->first_node->prev = nullptr;
+
+			this->actual_size--;
+			delete deleted_node;
+		}
+
+		void pop_back()
+		{
+			if (this->is_empty())
+				throw ListEmpty();
+
+			if (this->actual_size == 1) {
+				this->actual_size = 0;
 				delete this->first_node, this->last_node;
-				this->actual_size--;
+				this->first_node = this->last_node = nullptr;
 				return;
 			}
 
-			Abstract::Node<T>* deleted_node = this->first_node;
-			this->first_node = this->first_node->next;
-			this->actual_size--;
-			delete deleted_node;
+			NodePointer deleted_node = this->last_node;
+			NodePointer current_node = this->first_node;
 			
+			this->actual_size--;
+
+			while (current_node->next != this->last_node)
+				current_node = current_node->next;
+
+			current_node->next = nullptr;
+			this->last_node = current_node;
+			delete deleted_node;
 		}
 
-		template <typename obj_tpye>
-		friend std::ostream& operator <<(std::ostream& output, LinkedList<obj_tpye>& object)
+
+		T first() { return this->first_node->data; }
+		T last() { return this->last_node->data; }
+
+	};
+
+	template <typename T = int>
+	class Stack : private LinkedList<T>
+	{
+		using LinkedList = LinkedList<T>;
+	private:
+		bool add_from_back = true;
+	public:
+
+		Stack() = default;
+		Stack(bool add_from_back)
+			: add_from_back(add_from_back)
+		{}
+
+		void push(T value) 
 		{
-			object.__repr__(output);
-			return output;
+			this->add_from_back ? LinkedList::push_back(value) : LinkedList::push(value);
+		}
+
+		void pop()
+		{
+			this->add_from_back ? LinkedList::pop_back() : LinkedList::pop();
+		}
+
+		T top()
+		{
+			return this->add_from_back ? LinkedList::last() : LinkedList::first();
+		}
+
+		using LinkedList::clear;
+		using LinkedList::__repr__;
+		using LinkedList::is_empty;
+		using LinkedList::size;
+
+		friend std::ostream& operator << (std::ostream& output, Stack& object)
+		{
+			return object.__repr__(output);
 		}
 	};
 }
