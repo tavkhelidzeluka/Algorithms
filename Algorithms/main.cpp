@@ -50,7 +50,7 @@ int main()
 
 	cout << stk << endl;
 
-	Queue<> q;
+	Collection::Generic::Queue<> q;
 
 	for (int i = -15; i < 15; i++)
 	{

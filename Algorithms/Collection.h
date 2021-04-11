@@ -559,5 +559,39 @@ namespace Collection
 				return object.__repr__(output);
 			}
 		};
+
+		template <typename T = int>
+		class Queue : private List<T>
+		{
+			using List = List<T>;
+		private:
+			bool add_from_back = true;
+		public:
+
+			void push(T value)
+			{
+				this->add_from_back ? List::push_back(value) : List::push(value);
+			}
+
+			T pop()
+			{
+				return this->add_from_back ? List::pop() : List::pop_back();
+			}
+
+			T top()
+			{
+				return this->add_from_back ? this->operator[](0) : this->operator[](-1);
+			}
+
+			using List::clear;
+			using List::size;
+			using List::__repr__;
+			using List::operator[];
+
+			friend std::ostream& operator <<(std::ostream& output, Queue& object)
+			{
+				return object.__repr__(output);
+			}
+		};
 	}
 }
