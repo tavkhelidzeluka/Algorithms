@@ -4,6 +4,7 @@ using namespace std;
 using Collection::List;
 using Collection::LinkedList;
 using Collection::Stack;
+using Collection::Queue;
 
 
 int main()
@@ -35,86 +36,40 @@ int main()
 	{
 		cout << a[i] << endl;
 	}*/
-		
-	cout << "Linked List" << endl;
 
-	LinkedList<int> lst(false);
+	Stack<int> stk(false);
 
 	
-	for (int i = -5; i < 15; i++) 
+	for (int i = -5; i < 50; i++)
+		stk.push(i);
+	
+	int s = stk.size();
+	for (int i = 0; i < s; i++)
+		stk.pop();
+
+	cout << stk << endl;
+
+	Queue<> q;
+
+	for (int i = -15; i < 15; i++)
 	{
-		if (i % 2 == 0)
-			lst.push_back(i);
-		else
-			lst.push(i);
+		q.push(i);
+		cout << q << endl;
 	}
 
-	cout << lst << endl;
+	cout << endl;
 
-	lst.clear();
+	s = q.size();
 
-	cout << lst << endl;
-
-	try {
-		lst.pop_back();
-	}
-	catch (Collection::Abstract::List::ListEmpty& e)
+	for (int i = 0; i < s; i++)
 	{
-		cout << e.what() << endl;
+		q.pop();
+		cout << q << endl;
 	}
 
-	lst.push_back(5);
-	lst.push(255);
-	lst.push_back(-42324);
-	lst.push_back(137);
 
-	cout << lst << endl;
-
-	lst.pop();
-	lst.pop();
-	lst.pop();
-	lst.pop_back();
-
-	lst.push_back(52);
-	lst.push(15);
-	cout << lst << endl;
-
-	lst.pop_back();
-
-	cout << lst << endl;
-
-
-	cout << "Stack test" << endl;
-
-	Stack<int> stk;
-	stk.push(9);
-
-
-	Stack<int> stk2 = stk;
-
-	stk.clear();
-	cout << stk << endl;
-
-	stk2.pop();
-	stk2.push(26);
-	cout << stk2 << endl;
-
-	stk = stk2;
-
-	stk2.clear();
-
-	cout << stk << endl;
-	cout << stk2 << endl;
-
-
-	stk2 = stk;
-
-	cout << stk << endl;
-	cout << stk2 << endl;
-
-	stk2.clear();
-
-	cout << stk2;
+	cout << endl;
+	cout << q << endl;
 
 	return EXIT_SUCCESS;
 }
