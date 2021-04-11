@@ -116,7 +116,7 @@ namespace Collection
 			NodePointer first_node = nullptr;
 			NodePointer last_node = nullptr;
 			virtual void push(T value) = 0;
-			virtual void pop() = 0;
+			virtual T pop() = 0;
 		public:
 			~LinkedList()
 			{
@@ -394,30 +394,34 @@ namespace Collection
 			this->actual_size++;
 		}
 
-		void pop() 
+		T pop() 
 		{
 			if (this->is_empty())
 				throw ListEmpty();
 
 			NodePointer deleted_node = this->first_node;
+			T deleted_data = this->first_node->data;
 			this->first_node = this->first_node->next;
 			if (this->is_double_linked)
 				this->first_node->prev = nullptr;
 
 			this->actual_size--;
 			delete deleted_node;
+			return deleted_data;
 		}
 
-		void pop_back()
+		T pop_back()
 		{
 			if (this->is_empty())
 				throw ListEmpty();
+
+			T deleted_data = this->last_node->data;
 
 			if (this->actual_size == 1) {
 				this->actual_size = 0;
 				delete this->first_node, this->last_node;
 				this->first_node = this->last_node = nullptr;
-				return;
+				return deleted_data;
 			}
 
 			NodePointer deleted_node = this->last_node;
@@ -431,6 +435,7 @@ namespace Collection
 			current_node->next = nullptr;
 			this->last_node = current_node;
 			delete deleted_node;
+			return deleted_data;
 		}
 
 
@@ -457,9 +462,9 @@ namespace Collection
 			this->add_from_back ? LinkedList::push_back(value) : LinkedList::push(value);
 		}
 
-		void pop()
+		T pop()
 		{
-			this->add_from_back ? LinkedList::pop_back() : LinkedList::pop();
+			return this->add_from_back ? LinkedList::pop_back() : LinkedList::pop();
 		}
 
 		T top()
@@ -493,9 +498,9 @@ namespace Collection
 
 		}
 
-		void pop()
+		T pop()
 		{
-			this->add_from_back ? LinkedList::pop() : LinkedList::pop_back();
+			return this->add_from_back ? LinkedList::pop() : LinkedList::pop_back();
 		}
 
 		void push(T value)

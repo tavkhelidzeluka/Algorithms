@@ -103,10 +103,7 @@ int main()
 
 	s = int(l .size());
 	for (int i = 0; i < s; i++)
-	{
-		cout << l.top() << endl;
-		l.pop();
-	}
+		cout << l.pop() << endl;
 
 	return EXIT_SUCCESS;
 }
