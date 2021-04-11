@@ -6,10 +6,11 @@ using Collection::LinkedList;
 using Collection::Stack;
 using Collection::Queue;
 
+using Homework_2::Graph;
+
 
 int main()
 {
-	// graph_homework_1::test_homework_1();
 	/*List<> a(5);
 	a.push_back(25);
 	a.push_back(13);
@@ -36,6 +37,7 @@ int main()
 	{
 		cout << a[i] << endl;
 	}*/
+	/*LinkedList<> lst;
 
 	Stack<int> stk(false);
 
@@ -70,6 +72,12 @@ int main()
 
 	cout << endl;
 	cout << q << endl;
-
+	cout << lst << endl;*/
+  
+  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+  cout << "Algorithm Design" << endl;
+  
+	//Homework_1::test();
+	Homework_2::test();
 	return EXIT_SUCCESS;
 }

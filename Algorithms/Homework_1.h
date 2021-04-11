@@ -5,7 +5,7 @@
 #include <queue>
 
 
-namespace graph_homework_1 {
+namespace Homework_1 {
 	/*
 		Lab 3 Tasks :
 		N1
@@ -18,9 +18,15 @@ namespace graph_homework_1 {
 	public:
 		unsigned vertex_count = 0;
 		std::map<char, std::vector<char>> adjacency_list;
+		bool is_oriented = false;
 
-		Graph(unsigned vertex_count)
+		Graph(unsigned vertex_count, bool is_oriented = false)
+			: is_oriented(is_oriented)
 		{
+			/*
+				Constructor will generate vertecies and 
+				label them from a to z depending on given vertex_count
+			*/
 			this->vertex_count = vertex_count;
 			int char_code = 97;
 			for (unsigned i = 0; i < vertex_count; i++)
@@ -29,12 +35,18 @@ namespace graph_homework_1 {
 
 		Graph(const std::vector<char>& vertex_names)
 		{
+			/*
+				Constructor will create vertecies depending on passed vertex_names
+			*/
 			this->vertex_count = vertex_names.size();
 			for (const auto& vertex_name : vertex_names)
 				this->adjacency_list[vertex_name] = std::vector<char>{};
 		}
 		void add_edge(char from, char to, bool oriented = true)
 		{
+			/*
+				This will add edge (edges if Graph is undirected) between two vertecies
+			*/
 			for (const auto& vertex : this->adjacency_list[from])
 				if (vertex == to)
 					return;
@@ -52,6 +64,10 @@ namespace graph_homework_1 {
 
 		std::ostream& __repr__(std::ostream& output)
 		{
+			/*
+				representation of Graph
+			*/
+			output << std::endl;
 			output << this << " {\n";
 			for (const auto& [key, value] : this->adjacency_list)
 			{
@@ -63,11 +79,16 @@ namespace graph_homework_1 {
 				output << std::endl;
 			}
 			output << "}\n";
+			output << std::endl;
+
 			return output;
 		}
 
 		void bfs(char start, int homework = 1)
 		{
+			/*
+				breadth first search designed to serve homework tasks - N1, N2, N3
+			*/
 			std::queue<char> active_vertecies;
 			std::map<char, bool> visited;
 			std::map<char, int> depth;
@@ -143,6 +164,9 @@ namespace graph_homework_1 {
 
 		void bfs_task_4()
 		{
+			/*
+				Breadth first search designed to serve task 4
+			*/
 			std::queue<char> active_vertecies;
 			std::map<char, bool> visited;
 			std::map<char, bool> finished;
@@ -201,7 +225,7 @@ namespace graph_homework_1 {
 
 	};
 
-	void test_homework_1()
+	void test()
 	{
 		Graph b({ 'b', 'c', 'd', 'f' });
 
