@@ -39,11 +39,19 @@ namespace Collection
 			unsigned capacity = 0;
 
 			virtual void push(T value) = 0;
-			virtual void pop() = 0;
+			virtual T pop() = 0;
 		public:
 			~DynamicList()
 			{
 				delete[] data;
+			}
+
+			void clear()
+			{
+				delete this->data;
+				this->data = nullptr;
+				this->capacity = 0;
+				this->actual_size = 0;
 			}
 
 			T& operator[](int index)
@@ -51,17 +59,16 @@ namespace Collection
 				if (this->is_empty())
 					throw ListEmpty();
 
-				index = abs(index);
-				if (index < 0)
-					while (unsigned(index) >= this->actual_size)
-					{
-						index += this->actual_size;
-					}
-				else
-					while (unsigned(index) >= this->actual_size)
-					{
+				while (unsigned(abs(index)) >= this->actual_size)
+				{
+					if (index > 0)
 						index -= this->actual_size;
-					}
+					else
+						index += this->actual_size;
+				}
+				if (index < 0)
+					index = this->actual_size + index;
+
 				return this->data[index];
 			}
 
@@ -189,9 +196,6 @@ namespace Collection
 		using ListEmpty = Abstract::List::ListEmpty;
 		using IndexOutOfRange = Abstract::List::IndexOutOfRange;
 	private:
-		void push(T value) {}
-		void pop() {}
-
 		void increase_capacity(int increase_by = 1)
 		{
 			T* temp = new T[this->capacity];
@@ -260,6 +264,17 @@ namespace Collection
 			this->data[this->actual_size++] = value;
 		}
 
+		void push(T value)
+		{
+			if (this->actual_size == this->capacity)
+				this->increase_capacity();
+
+			for (unsigned i = this->actual_size++; i > 0; i--)
+				this->data[i] = this->data[i - 1];
+
+			this->data[0] = value;
+		}
+
 		T pop_back()
 		{
 			if (this->is_empty())
@@ -271,11 +286,25 @@ namespace Collection
 			return deleted_value;
 		}
 
+		T pop()
+		{
+			if (this->is_empty())
+				throw ListEmpty();
+
+			T deleted_value = this->data[0];
+
+			for (unsigned i = 0; i < this->actual_size; i++)
+				this->data[i] = this->data[i + 1];
+
+			this->actual_size--;
+			this->increase_capacity(-1);
+			return deleted_value;
+		}
+
 		template <typename obj_tpye>
 		friend std::ostream& operator <<(std::ostream& output, List<obj_tpye>& object)
 		{
-			object.__repr__(output);
-			return output;
+			return object.__repr__(output);
 		}
 	};
 
@@ -489,4 +518,41 @@ namespace Collection
 			return object.__repr__(output);
 		}
 	};
+
+	namespace Generic
+	{
+		template <typename T = int>
+		class Stack : private List<T>
+		{
+			using List = List<T>;
+		private:
+			bool add_from_back = true;
+		public:
+
+			void push(T value)
+			{
+				this->add_from_back ? List::push_back(value) : List::push(value);
+			}
+
+			T pop()
+			{
+				return this->add_from_back ? List::pop_back() : List::pop();
+			}
+
+			T top()
+			{
+				return this->add_from_back ? this->operator[](-1) : this->operator[](0);
+			}
+
+			using List::clear;
+			using List::size;
+			using List::__repr__;
+			using List::operator[];
+
+			friend std::ostream& operator <<(std::ostream& output, Stack& object)
+			{
+				return object.__repr__(output);
+			}
+		};
+	}
 }

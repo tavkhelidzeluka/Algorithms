@@ -37,7 +37,6 @@ int main()
 	{
 		cout << a[i] << endl;
 	}*/
-	/*LinkedList<> lst;
 
 	Stack<int> stk(false);
 
@@ -72,12 +71,42 @@ int main()
 
 	cout << endl;
 	cout << q << endl;
-	cout << lst << endl;*/
   
-  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-  cout << "Algorithm Design" << endl;
+	cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+	cout << "Algorithm Design" << endl;
   
 	//Homework_1::test();
 	Homework_2::test();
+
+	cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+
+	
+	Collection::Generic::Stack<int> lst;
+
+	for(int i = 0; i < 10; i++)
+		lst.push(i);
+
+	cout << lst << endl;
+	
+	s = int(lst.size());
+	for (int i = 0; i < s; i++)
+	{
+		cout << lst.pop() << endl;
+	}
+
+	Stack<int> l;
+
+	for (int i = 0; i < 10; i++)
+		l.push(i);
+
+	cout << l << endl;
+
+	s = int(l .size());
+	for (int i = 0; i < s; i++)
+	{
+		cout << l.top() << endl;
+		l.pop();
+	}
+
 	return EXIT_SUCCESS;
 }
