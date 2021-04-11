@@ -448,4 +448,45 @@ namespace Collection
 			return object.__repr__(output);
 		}
 	};
+
+	template <typename T = int>
+	class Queue : private LinkedList<T>
+	{
+		using LinkedList = LinkedList<T>;
+
+	private:
+		bool add_from_back = true;
+	public:
+		Queue() = default;
+		Queue(bool add_from_back)
+			: add_from_back(add_from_back)
+		{
+
+		}
+
+		void pop()
+		{
+			this->add_from_back ? LinkedList::pop() : LinkedList::pop_back();
+		}
+
+		void push(T value)
+		{
+			this->add_from_back ? LinkedList::push_back(value) : LinkedList::push(value);
+		}
+
+		T first()
+		{
+			this->add_from_back ? LinkedList::first() : LinkedList::Last();
+		}
+
+		using LinkedList::clear;
+		using LinkedList::__repr__;
+		using LinkedList::is_empty;
+		using LinkedList::size;
+
+		friend std::ostream& operator <<(std::ostream& output, Queue& object)
+		{
+			return object.__repr__(output);
+		}
+	};
 }
