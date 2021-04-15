@@ -4,6 +4,51 @@
 
 namespace Collection
 {
+	namespace Utility 
+	{
+		template <typename T>
+		class Node
+		{
+		public:
+			T data;
+			Node* next = nullptr;
+			Node* prev = nullptr;
+			Node(T value, Node<T>* next = nullptr, Node<T>* prev = nullptr)
+				: data(value), next(next), prev(prev)
+			{ }
+
+			friend std::ostream& operator <<(std::ostream& output, Node& object)
+			{
+				return output << object.data;
+			}
+		};
+
+		template <typename T>
+		class Pointer
+		{
+			T* _pointer = nullptr;
+		public:
+			Pointer(T* object) 
+				: _pointer(object)
+			{}
+
+			void operator =(T* rvalue)
+			{
+				delete this->_pointer;
+				this->_pointer = rvalue;
+			}
+			~Pointer()
+			{
+				delete _pointer;
+			}
+
+			friend std::ostream& operator <<(std::ostream& output, Pointer& object)
+			{
+				return output << *object._pointer;
+			}
+		};
+	}
+
 	namespace Abstract 
 	{
 		class List
@@ -11,8 +56,8 @@ namespace Collection
 		protected:
 			unsigned actual_size = 0;
 		public:
-			bool is_empty() { return this->actual_size == 0; }
-			unsigned size() { return this->actual_size; }
+			bool is_empty() const { return this->actual_size == 0; }
+			unsigned size() const { return this->actual_size; }
 
 			struct IndexOutOfRange : public std::exception
 			{
@@ -72,7 +117,7 @@ namespace Collection
 				return this->data[index];
 			}
 
-			std::ostream& __repr__(std::ostream& output)
+			std::ostream& __repr__(std::ostream& output) const
 			{
 				if (this->is_empty())
 					return output << "[]";
@@ -84,33 +129,19 @@ namespace Collection
 				return output;
 			}
 
-			friend std::ostream& operator <<(std::ostream& output, DynamicList<T> object)
+			friend std::ostream& operator <<(std::ostream& output, const DynamicList<T> object)
 			{
 				object.__repr__(output);
 				return output;
 			}
 		};
 
-		template <typename T>
-		class Node
-		{
-		public:
-			T data;
-			Node* next = nullptr;
-			Node* prev = nullptr;
-			Node(T value) : data(value) { }
-			Node(T value, Node<T>* next) : data(value), next(next) { }
-
-			friend std::ostream& operator <<(std::ostream& output, Node& object)
-			{
-				return output << object.data;
-			}
-		};
+		
 
 		template <typename T>
 		class LinkedList : public Abstract::List
 		{
-			using NodePointer = Node<T>*;
+			using NodePointer = Utility::Node<T>*;
 
 		protected:
 			NodePointer first_node = nullptr;
@@ -123,7 +154,7 @@ namespace Collection
 				this->clear();
 			}
 
-			bool is_empty() { return this->first_node == nullptr; }
+			bool is_empty() const { return this->first_node == nullptr; }
 
 			void clear()
 			{
@@ -165,7 +196,7 @@ namespace Collection
 				return current_node->data;
 			}
 
-			std::ostream& __repr__(std::ostream& output)
+			std::ostream& __repr__(std::ostream& output) const
 			{
 				if (this->is_empty())
 					return output << "[]";
@@ -182,9 +213,10 @@ namespace Collection
 				return output;
 			}
 
-			friend std::ostream& operator <<(std::ostream& output, LinkedList& object)
+			friend std::ostream& operator <<(std::ostream& output, const LinkedList& object)
 			{
 				object.__repr__(output);
+				//output << object.size();
 				return output;
 			}
 		};
@@ -312,7 +344,7 @@ namespace Collection
 	class LinkedList : public Abstract::LinkedList<T>
 	{
 		using ListEmpty = Abstract::List::ListEmpty;
-		using Node = Abstract::Node<T>;
+		using Node = Utility::Node<T>;
 		using NodePointer = Node*;
 
 	private:
@@ -508,9 +540,9 @@ namespace Collection
 			this->add_from_back ? LinkedList::push_back(value) : LinkedList::push(value);
 		}
 
-		T first()
+		T front()
 		{
-			this->add_from_back ? LinkedList::first() : LinkedList::Last();
+			return this->add_from_back ? LinkedList::first() : LinkedList::last();
 		}
 
 		using LinkedList::clear;
@@ -522,6 +554,18 @@ namespace Collection
 		{
 			return object.__repr__(output);
 		}
+	};
+
+	template <typename T>
+	class Deque : private LinkedList<T>
+	{
+		using LinkedList = LinkedList<T>;
+	private:
+
+	public:
+
+		using LinkedList::clear;
+
 	};
 
 	namespace Generic
@@ -578,7 +622,7 @@ namespace Collection
 				return this->add_from_back ? List::pop() : List::pop_back();
 			}
 
-			T top()
+			T front()
 			{
 				return this->add_from_back ? this->operator[](0) : this->operator[](-1);
 			}
